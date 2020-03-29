@@ -4,45 +4,61 @@ const express = require("express");
 //instanciando o express
 const server = express();
 
-/**
- * sempre que o servidor for acessado em /rotas-definidas utilizo
- * os parametros da função anonima `req, res`
- * req fica ouvindo o valor a ser passado pela barra de endereços
- * res retorna um json utilizando o nome que req recebeu
+//falando para o express que vou usar JSON
+server.use(express.json());
+
+/***************************
+ *
+ *  Query Params = ?teste=1
+ *  Route params = /users/1
+ *  Request body = { "nome": "Moises", "idade": 22 }
+ *  CRUD - Create, Read, Update, Delete
+ *  APRENDER SOBRE O METODO SPLICE
+ *
  */
 
-/**
- *  REQUEST BODY: é o modelo de arquitetura dos json ou xml
- *
- *  EXEMPLO: ##Form = {
- *                       Name: "Moisés",
- *                       Mail: "moisesboas@gmail.com",
- *                       Tell: "15 997471589"
- *                    }
- */
+//array de usuarios
+const users = ["Moises", "Carlos", "Junior"];
 
-/**
- * Query Params
- *
- * req.query.nome
- *
- * test: http://localhost:3000/teste?nome=moises
- */
-server.get("/teste", (req, res) => {
-  const { nome } = req.query;
-  return res.json({ message: `Hello ${nome}` });
+//middleware / rota que aparecerá em todas as rotas
+//otima para ser utilizada em alguma api onde se comunique com
+// footer navbar etc..
+server.use((req, res, next) => {
+  console.log("A requisição está global");
+  return next();
 });
 
-/**
- * Route Params
- *
- * req.params.id
- *
- * test: http://localhost:3000/users/42
- */
-server.get("/users/:id", (req, res) => {
-  const { id } = req.params;
-  return res.json({ message: `o seu id é: ${id}` });
+//middleware/rota que lista todos os usuarios
+server.get("/users", (req, res) => {
+  return res.json(users);
+});
+
+// middleware/rota que lista  apenas 1 usuario
+server.get("/users/:index", (req, res) => {
+  const { index } = req.params;
+  return res.json(users[index]);
+});
+
+// middleware/rota que cria um novo usuario
+server.post("/users", (req, res) => {
+  const { name } = req.body;
+  users.push(name);
+  return res.json(users);
+});
+
+// middleware/rota que edita um usuario
+server.put("/users/:index", (req, res) => {
+  const { index } = req.params;
+  const { name } = req.body;
+  users[index] = name;
+  return res.json(users);
+});
+
+//middleware/rota que deleta um usuario
+server.delete("/users/:index", (req, res) => {
+  const { index } = req.params;
+  users.splice(index, 1);
+  return res.send("");
 });
 
 //servidor ouvindo na porta 3000
